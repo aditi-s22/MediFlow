@@ -18,12 +18,20 @@ const updateProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { name, phone, gender, password } = req.body;
-    // role is intentionally ignored — users can never change their own role
+    const { name, phone, gender, password, consultationFee, availableSlots } = req.body;
+    // role, email, and specialization/experience are intentionally ignored —
+    // users can never change their own role, and doctors can't self-edit their
+    // credentials (only an admin can, via PUT /api/doctors/:id)
 
     if (name) user.name = name;
     if (phone) user.phone = phone;
     if (gender) user.gender = gender;
+
+    // consultationFee and availableSlots only make sense for doctors
+    if (user.role === "doctor") {
+      if (consultationFee !== undefined) user.consultationFee = consultationFee;
+      if (availableSlots) user.availableSlots = availableSlots;
+    }
 
     if (password) {
       const salt = await bcrypt.genSalt(10);

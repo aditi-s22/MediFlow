@@ -5,15 +5,20 @@ import Register from "./pages/Register";
 import PatientDashboard from "./pages/PatientDashboard";
 import DoctorDashboard from "./pages/DoctorDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
+import AdminDoctors from "./pages/AdminDoctors";
+import Doctors from "./pages/Doctors";
+import BookAppointment from "./pages/BookAppointment";
 import Appointments from "./pages/Appointments";
 import Profile from "./pages/Profile";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
 import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-// This is the routing skeleton for the whole app.
 // Each <Route> maps a URL path to the page component that should render there.
-// Right now every page is just a placeholder — we'll fill them in phase by phase.
+// Dashboards and other authenticated pages are wrapped in ProtectedRoute to
+// enforce login + role access. About/Contact/Landing/NotFound are still
+// placeholders — out of scope for now.
 function App() {
   return (
     <BrowserRouter>
@@ -21,11 +26,70 @@ function App() {
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/patient/dashboard" element={<PatientDashboard />} />
-        <Route path="/doctor/dashboard" element={<DoctorDashboard />} />
-        <Route path="/admin/dashboard" element={<AdminDashboard />} />
-        <Route path="/appointments" element={<Appointments />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route
+          path="/patient/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["patient"]}>
+              <PatientDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctor/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["doctor"]}>
+              <DoctorDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin/doctors"
+          element={
+            <ProtectedRoute allowedRoles={["admin"]}>
+              <AdminDoctors />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctors"
+          element={
+            <ProtectedRoute allowedRoles={["patient"]}>
+              <Doctors />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/doctors/:id/book"
+          element={
+            <ProtectedRoute allowedRoles={["patient"]}>
+              <BookAppointment />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/appointments"
+          element={
+            <ProtectedRoute>
+              <Appointments />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/about" element={<About />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="*" element={<NotFound />} />
