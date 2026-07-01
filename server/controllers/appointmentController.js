@@ -1,5 +1,6 @@
 import Appointment from "../models/Appointment.js";
 import User from "../models/User.js";
+import PredictionLog from "../models/PredictionLog.js";
 import isSameUser from "../utils/isSameUser.js";
 import getPopulatedAppointments from "../utils/getPopulatedAppointments.js";
 import buildQueuePayload from "../utils/buildQueuePayload.js";
@@ -71,6 +72,14 @@ const createAppointment = async (req, res) => {
       queueNumber: null,
       estimatedWait: null,
     });
+
+    if (req.body.predictionLogId) {
+      try {
+        await PredictionLog.findByIdAndUpdate(req.body.predictionLogId, { chosenDoctor: doctor });
+      } catch (err) {
+        console.error("Failed to update chosen doctor in PredictionLog:", err.message);
+      }
+    }
 
     res.status(201).json({ appointment });
   } catch (error) {

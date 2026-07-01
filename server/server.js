@@ -9,6 +9,7 @@ import doctorRoutes from "./routes/doctorRoutes.js";
 import appointmentRoutes from "./routes/appointmentRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import queueRoutes from "./routes/queueRoutes.js";
+import mlRoutes from "./routes/mlRoutes.js";
 import initSocket from "./socket/socket.js";
 
 dotenv.config();
@@ -45,6 +46,7 @@ app.use("/api/doctors", doctorRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/queue", queueRoutes);
+app.use("/api/ml", mlRoutes);
 
 const PORT = process.env.PORT || 5000;
 

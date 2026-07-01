@@ -52,6 +52,59 @@ const userSchema = new mongoose.Schema(
       type: [String],
       default: [],
     },
+    age: {
+      type: Number,
+    },
+    qualification: {
+      type: String,
+    },
+    hospitalExperience: {
+      type: String,
+    },
+    languagesSpoken: {
+      type: [String],
+      default: [],
+    },
+    aboutDoctor: {
+      type: String,
+    },
+    availableDays: {
+      type: [String],
+      default: [],
+    },
+    profilePicture: {
+      type: String,
+    },
+    rating: {
+      type: Number,
+      default: 0,
+    },
+    reviewCount: {
+      type: Number,
+      default: 0,
+    },
+    patientsTreated: {
+      type: Number,
+      default: 0,
+    },
+    hospitalName: {
+      type: String,
+      default: "MediFlow General Hospital",
+    },
+    clinicAddress: {
+      type: String,
+    },
+    medicalRegistrationNumber: {
+      type: String,
+    },
+    biography: {
+      type: String,
+    },
+    status: {
+      type: String,
+      enum: ["active", "on_leave"],
+      default: "active",
+    },
   },
   {
     timestamps: true,

@@ -1,5 +1,4 @@
 import { Component } from "react";
-import { Link } from "react-router-dom";
 import { AlertTriangle } from "lucide-react";
 
 class ErrorBoundary extends Component {
@@ -46,12 +45,12 @@ class ErrorBoundary extends Component {
             >
               Reload page
             </button>
-            <Link
-              to="/"
+            <a
+              href="/"
               className="rounded-lg border border-gray-200 px-5 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-50"
             >
               Go home
-            </Link>
+            </a>
           </div>
         </div>
       </div>
