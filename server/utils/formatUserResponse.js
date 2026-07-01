@@ -13,6 +13,21 @@ const formatUserResponse = (user) => ({
   experience: user.experience,
   consultationFee: user.consultationFee,
   availableSlots: user.availableSlots,
+  age: user.age,
+  qualification: user.qualification,
+  hospitalExperience: user.hospitalExperience,
+  languagesSpoken: user.languagesSpoken,
+  aboutDoctor: user.aboutDoctor,
+  availableDays: user.availableDays,
+  profilePicture: user.profilePicture,
+  rating: user.rating,
+  reviewCount: user.reviewCount,
+  patientsTreated: user.patientsTreated,
+  hospitalName: user.hospitalName,
+  clinicAddress: user.clinicAddress,
+  medicalRegistrationNumber: user.medicalRegistrationNumber,
+  biography: user.biography,
+  status: user.status,
 });
 
 export default formatUserResponse;

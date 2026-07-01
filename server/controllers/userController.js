@@ -18,7 +18,10 @@ const updateProfile = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const { name, phone, gender, password, consultationFee, availableSlots } = req.body;
+    const {
+      name, phone, gender, password, consultationFee, availableSlots,
+      aboutDoctor, biography, languagesSpoken, availableDays, profilePicture, clinicAddress, age
+    } = req.body;
     // role, email, and specialization/experience are intentionally ignored —
     // users can never change their own role, and doctors can't self-edit their
     // credentials (only an admin can, via PUT /api/doctors/:id)
@@ -27,10 +30,17 @@ const updateProfile = async (req, res) => {
     if (phone) user.phone = phone;
     if (gender) user.gender = gender;
 
-    // consultationFee and availableSlots only make sense for doctors
+    // consultationFee, slots, and medical profiles only make sense for doctors
     if (user.role === "doctor") {
       if (consultationFee !== undefined) user.consultationFee = consultationFee;
-      if (availableSlots) user.availableSlots = availableSlots;
+      if (availableSlots !== undefined) user.availableSlots = availableSlots;
+      if (aboutDoctor !== undefined) user.aboutDoctor = aboutDoctor;
+      if (biography !== undefined) user.biography = biography;
+      if (languagesSpoken !== undefined) user.languagesSpoken = languagesSpoken;
+      if (availableDays !== undefined) user.availableDays = availableDays;
+      if (profilePicture !== undefined) user.profilePicture = profilePicture;
+      if (clinicAddress !== undefined) user.clinicAddress = clinicAddress;
+      if (age !== undefined) user.age = age;
     }
 
     if (password) {

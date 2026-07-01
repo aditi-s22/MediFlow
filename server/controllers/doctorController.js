@@ -72,6 +72,21 @@ const createDoctor = async (req, res) => {
       experience,
       consultationFee,
       availableSlots: availableSlots || [],
+      age: req.body.age,
+      qualification: req.body.qualification,
+      hospitalExperience: req.body.hospitalExperience,
+      languagesSpoken: req.body.languagesSpoken || [],
+      aboutDoctor: req.body.aboutDoctor,
+      availableDays: req.body.availableDays || [],
+      profilePicture: req.body.profilePicture,
+      rating: req.body.rating || 0,
+      reviewCount: req.body.reviewCount || 0,
+      patientsTreated: req.body.patientsTreated || 0,
+      hospitalName: req.body.hospitalName,
+      clinicAddress: req.body.clinicAddress,
+      medicalRegistrationNumber: req.body.medicalRegistrationNumber,
+      biography: req.body.biography,
+      status: req.body.status || "active",
     });
 
     res.status(201).json({ doctor: formatUserResponse(doctor) });
@@ -89,7 +104,12 @@ const updateDoctor = async (req, res) => {
       return res.status(404).json({ message: "Doctor not found" });
     }
 
-    const { name, phone, gender, specialization, experience, consultationFee, availableSlots } = req.body;
+    const {
+      name, phone, gender, specialization, experience, consultationFee, availableSlots,
+      age, qualification, hospitalExperience, languagesSpoken, aboutDoctor, availableDays,
+      profilePicture, rating, reviewCount, patientsTreated, hospitalName, clinicAddress,
+      medicalRegistrationNumber, biography, status
+    } = req.body;
     // email and role are intentionally not editable here
 
     if (name) doctor.name = name;
@@ -99,6 +119,21 @@ const updateDoctor = async (req, res) => {
     if (experience !== undefined) doctor.experience = experience;
     if (consultationFee !== undefined) doctor.consultationFee = consultationFee;
     if (availableSlots) doctor.availableSlots = availableSlots;
+    if (age !== undefined) doctor.age = age;
+    if (qualification !== undefined) doctor.qualification = qualification;
+    if (hospitalExperience !== undefined) doctor.hospitalExperience = hospitalExperience;
+    if (languagesSpoken !== undefined) doctor.languagesSpoken = languagesSpoken;
+    if (aboutDoctor !== undefined) doctor.aboutDoctor = aboutDoctor;
+    if (availableDays !== undefined) doctor.availableDays = availableDays;
+    if (profilePicture !== undefined) doctor.profilePicture = profilePicture;
+    if (rating !== undefined) doctor.rating = rating;
+    if (reviewCount !== undefined) doctor.reviewCount = reviewCount;
+    if (patientsTreated !== undefined) doctor.patientsTreated = patientsTreated;
+    if (hospitalName !== undefined) doctor.hospitalName = hospitalName;
+    if (clinicAddress !== undefined) doctor.clinicAddress = clinicAddress;
+    if (medicalRegistrationNumber !== undefined) doctor.medicalRegistrationNumber = medicalRegistrationNumber;
+    if (biography !== undefined) doctor.biography = biography;
+    if (status !== undefined) doctor.status = status;
 
     const updatedDoctor = await doctor.save();
 
