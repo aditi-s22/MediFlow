@@ -21,6 +21,7 @@ import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
 import * as doctorService from "../services/doctorService";
 import * as mlService from "../services/mlService";
 import toast from "react-hot-toast";
+import formatDoctorName from "../utils/formatDoctorName";
 
 const DAYS_OF_WEEK = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
@@ -270,7 +271,7 @@ function Doctors() {
                           <div className="h-40 w-full md:w-40 overflow-hidden rounded-xl bg-slate-50 border border-slate-100 relative">
                             <img
                               src={doctor.profilePicture || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400"}
-                              alt={doctor.name}
+                              alt={formatDoctorName(doctor.name)}
                               className="h-full w-full object-cover"
                             />
                             {isAvailable && (
@@ -288,7 +289,7 @@ function Doctors() {
                               <div>
                                 <div className="flex items-center gap-2 flex-wrap">
                                   <h2 className="text-lg font-bold text-slate-900 hover:text-blue-600 transition-colors">
-                                    {doctor.name}
+                                    {formatDoctorName(doctor.name)}
                                   </h2>
                                   {isBestMatch && (
                                     <span className="rounded bg-blue-600 px-2 py-0.5 text-4xs font-black text-white uppercase tracking-wider shadow-xs">
@@ -456,7 +457,7 @@ function Doctors() {
                         <div className="h-40 w-full md:w-40 overflow-hidden rounded-xl bg-slate-50 border border-slate-100 relative">
                           <img
                             src={doctor.profilePicture || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400"}
-                            alt={doctor.name}
+                            alt={formatDoctorName(doctor.name)}
                             className="h-full w-full object-cover"
                           />
                           {isAvailableToday && (
@@ -473,7 +474,7 @@ function Doctors() {
                           <div className="flex items-start justify-between gap-4">
                             <div>
                               <h2 className="text-lg font-bold text-slate-900 hover:text-blue-600 transition-colors">
-                                {doctor.name}
+                                {formatDoctorName(doctor.name)}
                               </h2>
                               <p className="text-xs font-semibold text-blue-600 mt-0.5">{doctor.specialization}</p>
                               <p className="text-2xs text-slate-400 mt-0.5">{doctor.qualification}</p>

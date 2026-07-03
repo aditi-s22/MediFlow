@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Menu, X } from "lucide-react";
+import toast from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import getDashboardPath from "../utils/getDashboardPath";
+import socket from "../services/socket";
 
 const navLinksByRole = {
   patient: [
@@ -17,6 +19,7 @@ const navLinksByRole = {
   admin: [
     { to: "/admin/doctors", label: "Doctors" },
     { to: "/appointments", label: "Appointments" },
+    { to: "/profile", label: "Profile" },
   ],
 };
 
@@ -25,6 +28,31 @@ function Navbar() {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    if (user?._id) {
+      socket.connect();
+      socket.emit("joinUserRoom", user._id);
+
+      const handleNotification = (payload) => {
+        toast(payload.message, {
+          icon: "🔔",
+          duration: 5000,
+          style: {
+            borderRadius: "10px",
+            background: "#1e293b",
+            color: "#fff",
+          },
+        });
+      };
+
+      socket.on("notification", handleNotification);
+
+      return () => {
+        socket.off("notification", handleNotification);
+      };
+    }
+  }, [user?._id]);
 
   const handleLogout = () => {
     logout();
@@ -48,7 +76,7 @@ function Navbar() {
     <nav className="sticky top-0 z-30 border-b border-gray-200 bg-white/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3.5">
         {/* Logo */}
-        <Link to={dashboardPath} className="flex items-center gap-2">
+        <Link to="/" className="flex items-center gap-2">
           <div className="flex h-7 w-7 items-center justify-center rounded-md bg-blue-600">
             <span className="text-xs font-bold text-white">M</span>
           </div>

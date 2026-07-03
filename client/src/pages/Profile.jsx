@@ -21,6 +21,16 @@ import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
 import * as userService from "../services/userService";
 import * as appointmentService from "../services/appointmentService";
 import { inputClassName } from "../utils/inputStyles";
+import formatDoctorName from "../utils/formatDoctorName";
+
+const ALL_DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+const ALL_SLOTS = [
+  "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
+  "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
+  "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
+  "04:00 PM", "04:30 PM", "05:00 PM"
+];
 
 function Field({ label, value, icon: Icon }) {
   return (
@@ -42,8 +52,8 @@ function Profile() {
   const [phone, setPhone] = useState(user?.phone || "");
   const [age, setAge] = useState(user?.age ?? "");
   const [consultationFee, setConsultationFee] = useState(user?.consultationFee ?? "");
-  const [availableSlots, setAvailableSlots] = useState((user?.availableSlots || []).join(", "));
-  const [availableDays, setAvailableDays] = useState((user?.availableDays || []).join(", "));
+  const [availableSlots, setAvailableSlots] = useState(user?.availableSlots || []);
+  const [availableDays, setAvailableDays] = useState(user?.availableDays || []);
   const [aboutDoctor, setAboutDoctor] = useState(user?.aboutDoctor || "");
   const [biography, setBiography] = useState(user?.biography || "");
   const [languagesSpoken, setLanguagesSpoken] = useState((user?.languagesSpoken || []).join(", "));
@@ -72,14 +82,8 @@ function Profile() {
     
     if (isDoctor) {
       payload.consultationFee = Number(consultationFee);
-      payload.availableSlots = availableSlots
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      payload.availableDays = availableDays
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
+      payload.availableSlots = availableSlots;
+      payload.availableDays = availableDays;
       payload.aboutDoctor = aboutDoctor;
       payload.biography = biography;
       payload.languagesSpoken = languagesSpoken
@@ -203,8 +207,8 @@ function Profile() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <Field label="Email Address" value={user?.email} icon={Mail} />
                     <Field label="Primary Phone" value={user?.phone} icon={Phone} />
-                    <Field label="Gender Identity" value={user?.gender} icon={User} />
-                    <Field label="Patient Age" value={user?.age ? `${user.age} Years` : null} icon={Calendar} />
+                    <Field label="Gender Identity" value={user?.gender || <span className="text-amber-600 font-bold italic text-xs">Complete Profile</span>} icon={User} />
+                    <Field label="Patient Age" value={user?.age ? `${user.age} Years` : <span className="text-amber-600 font-bold italic text-xs">Complete Profile</span>} icon={Calendar} />
                   </div>
                 </div>
 
@@ -218,7 +222,7 @@ function Profile() {
                       {appointments.filter(a => a.status === "confirmed").map((appt) => (
                         <div key={appt._id} className="flex justify-between items-center text-xs border border-slate-100 rounded-xl p-3 bg-slate-50/50">
                           <div>
-                            <p className="font-bold text-slate-800">Dr. {appt.doctor?.name}</p>
+                            <p className="font-bold text-slate-800">{formatDoctorName(appt.doctor?.name)}</p>
                             <p className="text-3xs text-blue-600 uppercase tracking-wider">{appt.doctor?.specialization}</p>
                           </div>
                           <div className="text-right">
@@ -241,7 +245,7 @@ function Profile() {
                       {appointments.filter(a => a.status === "completed" || a.status === "cancelled").slice(0, 5).map((appt) => (
                         <div key={appt._id} className="py-3 flex items-center justify-between text-xs">
                           <div>
-                            <p className="font-bold text-slate-800">Dr. {appt.doctor?.name} ({appt.doctor?.specialization})</p>
+                            <p className="font-bold text-slate-800">{formatDoctorName(appt.doctor?.name)} ({appt.doctor?.specialization})</p>
                             <p className="text-3xs text-slate-400">Date: {new Date(appt.appointmentDate).toLocaleDateString("en-IN")}</p>
                           </div>
                           <span className={`px-2 py-0.5 rounded text-3xs font-bold ${
@@ -340,33 +344,58 @@ function Profile() {
                     </div>
 
                     <div>
-                      <label htmlFor="availableDays" className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                      <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
                         Available Consultation Days
-                      </label>
-                      <input
-                        id="availableDays"
-                        type="text"
-                        value={availableDays}
-                        onChange={(e) => setAvailableDays(e.target.value)}
-                        className={inputClassName}
-                        placeholder="e.g. Monday, Wednesday, Friday"
-                      />
-                      <p className="mt-1 text-[10px] text-slate-400">Separate with commas (e.g. Monday, Wednesday).</p>
+                      </span>
+                      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 mt-2">
+                        {ALL_DAYS.map((day) => {
+                          const isChecked = availableDays.includes(day);
+                          return (
+                            <label key={day} className="flex items-center gap-2 rounded-lg border border-slate-100 bg-slate-50/50 p-2.5 hover:bg-slate-50 cursor-pointer text-xs font-semibold text-slate-700">
+                              <input
+                                type="checkbox"
+                                checked={isChecked}
+                                onChange={() => {
+                                  setAvailableDays((prev) =>
+                                    isChecked ? prev.filter((d) => d !== day) : [...prev, day]
+                                  );
+                                }}
+                                className="rounded text-blue-600 focus:ring-blue-500/20 h-4 w-4"
+                              />
+                              {day}
+                            </label>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     <div>
-                      <label htmlFor="availableSlots" className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+                      <span className="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
                         Available Time Slots
-                      </label>
-                      <input
-                        id="availableSlots"
-                        type="text"
-                        value={availableSlots}
-                        onChange={(e) => setAvailableSlots(e.target.value)}
-                        className={inputClassName}
-                        placeholder="e.g. 09:00 AM, 10:00 AM, 02:00 PM"
-                      />
-                      <p className="mt-1 text-[10px] text-slate-400">Separate with commas (e.g. 09:00 AM, 11:00 AM).</p>
+                      </span>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {ALL_SLOTS.map((slot) => {
+                          const isSelected = availableSlots.includes(slot);
+                          return (
+                            <button
+                              type="button"
+                              key={slot}
+                              onClick={() => {
+                                setAvailableSlots((prev) =>
+                                  isSelected ? prev.filter((s) => s !== slot) : [...prev, slot]
+                                );
+                              }}
+                              className={`rounded-xl border px-3.5 py-2 text-xs font-bold transition-all ${
+                                isSelected
+                                  ? "border-blue-600 bg-blue-600 text-white shadow-sm shadow-blue-100"
+                                  : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                              }`}
+                            >
+                              {slot}
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
 
                     <div>

@@ -26,6 +26,7 @@ import AppointmentStatusBadge from "../components/AppointmentStatusBadge";
 import * as adminService from "../services/adminService";
 import * as doctorService from "../services/doctorService";
 import * as mlService from "../services/mlService";
+import formatDoctorName from "../utils/formatDoctorName";
 
 const isTodayDate = (dateString) => {
   const d = new Date(dateString);
@@ -72,11 +73,53 @@ function AdminDashboard() {
   }, []);
 
   const todayAppointments = appointments.filter((a) => isTodayDate(a.appointmentDate));
-  
-  // Calculate average rating
-  const avgRating = doctors.length > 0 
-    ? (doctors.reduce((sum, d) => sum + (d.rating || 0), 0) / doctors.length).toFixed(1)
-    : "0.0";
+
+  const upcomingCount = appointments.filter(
+    (a) => a.status === "confirmed" && !isTodayDate(a.appointmentDate)
+  ).length;
+
+  const completedCount = appointments.filter((a) => a.status === "completed").length;
+  const cancelledCount = appointments.filter((a) => a.status === "cancelled").length;
+
+  const deptCounts = {};
+  appointments.forEach((a) => {
+    const dept = a.doctor?.specialization;
+    if (dept) deptCounts[dept] = (deptCounts[dept] || 0) + 1;
+  });
+  const mostBookedDept = Object.keys(deptCounts).sort((a, b) => deptCounts[b] - deptCounts[a])[0] || "General Medicine";
+
+  const activeDoctorsCount = doctors.filter((d) => d.status !== "inactive").length;
+
+  const recentActivities = [];
+  appointments.slice(0, 5).forEach((appt) => {
+    if (appt.status === "completed") {
+      recentActivities.push({
+        title: "Consultation Completed",
+        desc: `${appt.patient?.name || "Patient"} with ${formatDoctorName(appt.doctor?.name) || "Doctor"}`,
+        color: "bg-emerald-500",
+      });
+    } else if (appt.status === "cancelled") {
+      recentActivities.push({
+        title: "Appointment Cancelled",
+        desc: `${appt.patient?.name || "Patient"} with ${formatDoctorName(appt.doctor?.name) || "Doctor"}`,
+        color: "bg-rose-500",
+      });
+    } else if (appt.status === "confirmed") {
+      recentActivities.push({
+        title: appt.queueNumber ? "Patient Checked In" : "Appointment Booked",
+        desc: `${appt.patient?.name || "Patient"} with ${formatDoctorName(appt.doctor?.name) || "Doctor"}`,
+        color: appt.queueNumber ? "bg-amber-500" : "bg-blue-500",
+      });
+    }
+  });
+
+  if (recentActivities.length === 0) {
+    recentActivities.push({
+      title: "System Initialized",
+      desc: "Waiting for clinical bookings...",
+      color: "bg-teal-500",
+    });
+  }
 
   return (
     <AuthenticatedLayout>
@@ -121,12 +164,12 @@ function AdminDashboard() {
             {/* Operational Stats Grid */}
             <div className="grid grid-cols-2 gap-4 md:grid-cols-6">
               {[
-                { label: "Today's Consults", value: todayAppointments.length, icon: Calendar, color: "text-blue-600 bg-blue-50" },
-                { label: "Doctors On Duty", value: doctors.length, icon: Stethoscope, color: "text-purple-600 bg-purple-50" },
-                { label: "Registered Patients", value: stats.totalPatients, icon: Users, color: "text-teal-600 bg-teal-50" },
-                { label: "Total Bookings", value: stats.totalAppointments, icon: CalendarCheck, color: "text-emerald-600 bg-emerald-50" },
-                { label: "Avg Clinical Rating", value: `${avgRating} ★`, icon: CheckCircle, color: "text-amber-600 bg-amber-50" },
-                { label: "Cancelled Bookings", value: stats.cancelled, icon: CalendarX, color: "text-rose-600 bg-rose-50" },
+                { label: "Today's Appointments", value: todayAppointments.length, icon: Calendar, color: "text-blue-600 bg-blue-50" },
+                { label: "Upcoming Bookings", value: upcomingCount, icon: CalendarCheck, color: "text-purple-600 bg-purple-50" },
+                { label: "Completed Consults", value: completedCount, icon: CheckCircle, color: "text-teal-600 bg-teal-50" },
+                { label: "Cancelled Bookings", value: cancelledCount, icon: CalendarX, color: "text-rose-600 bg-rose-50" },
+                { label: "Most Booked Dept", value: mostBookedDept, icon: Stethoscope, color: "text-emerald-600 bg-emerald-50" },
+                { label: "Active Doctors", value: activeDoctorsCount, icon: Users, color: "text-amber-600 bg-amber-50" },
               ].map((card, i) => (
                 <div key={i} className="rounded-xl border border-slate-100 bg-white p-4 shadow-2xs text-left">
                   <div className="flex justify-between items-start gap-2">
@@ -203,7 +246,7 @@ function AdminDashboard() {
                             <tr key={appt._id} className="hover:bg-slate-50/50">
                               <td className="py-3.5 font-bold text-slate-800">{appt.patient?.name}</td>
                               <td className="py-3.5">
-                                <p className="font-medium text-slate-800">Dr. {appt.doctor?.name}</p>
+                                <p className="font-medium text-slate-800">{formatDoctorName(appt.doctor?.name)}</p>
                                 <p className="text-3xs text-blue-600 uppercase tracking-wider">{appt.doctor?.specialization}</p>
                               </td>
                               <td className="py-3.5 text-slate-500">
@@ -359,36 +402,17 @@ function AdminDashboard() {
 
                 {/* Live System Activity Log */}
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Live System Activity</h3>
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Recent Activity</h3>
                   <div className="space-y-4 text-2xs font-mono text-slate-500">
-                    <div className="flex gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
-                      <div>
-                        <p className="text-slate-800 font-bold">MongoDB Database Connected</p>
-                        <p className="text-[10px] text-slate-400">Cluster0 shard pool active</p>
+                    {recentActivities.map((act, idx) => (
+                      <div key={idx} className="flex gap-2">
+                        <span className={`h-1.5 w-1.5 rounded-full mt-1 shrink-0 ${act.color}`} />
+                        <div>
+                          <p className="text-slate-800 font-bold">{act.title}</p>
+                          <p className="text-[10px] text-slate-400">{act.desc}</p>
+                        </div>
                       </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 mt-1 shrink-0" />
-                      <div>
-                        <p className="text-slate-800 font-bold">WebSocket Server Sync Successful</p>
-                        <p className="text-[10px] text-slate-400">Socket.io port listener open</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-blue-500 mt-1 shrink-0" />
-                      <div>
-                        <p className="text-slate-800 font-bold">Seed Script Completed</p>
-                        <p className="text-[10px] text-slate-400">Database populated successfully</p>
-                      </div>
-                    </div>
-                    <div className="flex gap-2">
-                      <span className="h-1.5 w-1.5 rounded-full bg-rose-500 mt-1 shrink-0" />
-                      <div>
-                        <p className="text-slate-800 font-bold">Administrative Logged In</p>
-                        <p className="text-[10px] text-slate-400">Authorized session token issued</p>
-                      </div>
-                    </div>
+                    ))}
                   </div>
                 </div>
 

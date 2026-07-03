@@ -10,4 +10,6 @@ const completeAppointment = (id) => api.patch(`/appointments/${id}/complete`);
 
 const checkInAppointment = (id) => api.patch(`/appointments/${id}/checkin`);
 
-export { getAppointments, createAppointment, cancelAppointment, completeAppointment, checkInAppointment };
+const getBookedSlots = (doctor, date) => api.get("/appointments/booked-slots", { params: { doctor, date } });
+
+export { getAppointments, createAppointment, cancelAppointment, completeAppointment, checkInAppointment, getBookedSlots };

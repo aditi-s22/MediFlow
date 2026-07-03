@@ -28,6 +28,7 @@ import * as appointmentService from "../services/appointmentService";
 import * as queueService from "../services/queueService";
 import * as doctorService from "../services/doctorService";
 import socket from "../services/socket";
+import formatDoctorName from "../utils/formatDoctorName";
 
 const isTodayDate = (dateString) => {
   const d = new Date(dateString);
@@ -83,16 +84,18 @@ function PatientDashboard() {
         if (todayAppt) {
           setTodayAppointment(todayAppt);
           todayApptIdRef.current = todayAppt._id;
-          doctorIdRef.current = todayAppt.doctor._id;
-          try {
-            const qRes = await queueService.getQueue(todayAppt.doctor._id);
-            setQueueList(qRes.data.queue);
-            setCurrentServing(qRes.data.currentServing);
-          } catch {
-            // non-fatal
+          doctorIdRef.current = todayAppt.doctor?._id;
+          if (todayAppt.doctor?._id) {
+            try {
+              const qRes = await queueService.getQueue(todayAppt.doctor._id);
+              setQueueList(qRes.data.queue);
+              setCurrentServing(qRes.data.currentServing);
+            } catch {
+              // non-fatal
+            }
+            socket.connect();
+            socket.emit("joinDoctorRoom", todayAppt.doctor._id);
           }
-          socket.connect();
-          socket.emit("joinDoctorRoom", todayAppt.doctor._id);
         }
       } catch {
         toast.error("Could not load your health information");
@@ -190,21 +193,21 @@ function PatientDashboard() {
     if (appt.status === "completed") {
       recentActivity.push({
         title: `Consultation completed`,
-        desc: `With Dr. ${appt.doctor?.name} (${appt.doctor?.specialization})`,
+        desc: `With ${formatDoctorName(appt.doctor?.name)} (${appt.doctor?.specialization})`,
         time: getRelativeDayName(appt.appointmentDate),
         type: "completed",
       });
     } else if (appt.status === "confirmed") {
       recentActivity.push({
         title: `Appointment scheduled`,
-        desc: `With Dr. ${appt.doctor?.name} at ${appt.appointmentTime}`,
+        desc: `With ${formatDoctorName(appt.doctor?.name)} at ${appt.appointmentTime}`,
         time: getRelativeDayName(appt.appointmentDate),
         type: "confirmed",
       });
     } else if (appt.status === "cancelled") {
       recentActivity.push({
         title: `Appointment cancelled`,
-        desc: `With Dr. ${appt.doctor?.name} on ${new Date(appt.appointmentDate).toLocaleDateString("en-IN")}`,
+        desc: `With ${formatDoctorName(appt.doctor?.name)} on ${new Date(appt.appointmentDate).toLocaleDateString("en-IN")}`,
         time: getRelativeDayName(appt.appointmentDate),
         type: "cancelled",
       });
@@ -221,10 +224,10 @@ function PatientDashboard() {
   }
 
   const myQueueEntry = todayAppointment
-    ? queueList.find((q) => q._id.toString() === todayAppointment._id.toString())
+    ? queueList.find((q) => q._id?.toString() === todayAppointment._id?.toString())
     : null;
   const servingEntry = currentServing
-    ? queueList.find((q) => q._id.toString() === currentServing.toString())
+    ? queueList.find((q) => q._id?.toString() === currentServing.toString())
     : null;
 
   return (
@@ -252,6 +255,23 @@ function PatientDashboard() {
           </div>
         </div>
 
+        {(!user?.age || !user?.gender) && (
+          <div className="mt-6 rounded-xl border border-amber-200 bg-amber-50/40 p-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+            <div>
+              <p className="text-sm font-bold text-amber-800">Complete Your Profile</p>
+              <p className="text-xs text-amber-600 mt-0.5">
+                Please add your age and gender in settings to receive personalized specialist recommendations.
+              </p>
+            </div>
+            <Link
+              to="/profile"
+              className="rounded-xl bg-amber-600 px-4 py-2 text-xs font-semibold text-white hover:bg-amber-700 transition-colors shadow-sm"
+            >
+              Complete Profile
+            </Link>
+          </div>
+        )}
+
         {isLoading ? (
           <div className="mt-8 grid grid-cols-1 gap-6 md:grid-cols-3">
             {[...Array(3)].map((_, i) => <SkeletonCard key={i} />)}
@@ -275,7 +295,7 @@ function PatientDashboard() {
                           TODAY'S APPOINTMENT
                         </span>
                         <h3 className="mt-1 text-base font-bold text-slate-900">
-                          Dr. {todayAppointment.doctor?.name}
+                          {formatDoctorName(todayAppointment.doctor?.name)}
                         </h3>
                         <p className="text-xs text-slate-500">
                           {todayAppointment.doctor?.specialization} · {todayAppointment.appointmentTime}
@@ -362,11 +382,11 @@ function PatientDashboard() {
                         <div className="flex items-center gap-3">
                           <img
                             src={appt.doctor?.profilePicture || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=100"}
-                            alt={appt.doctor?.name}
+                            alt={formatDoctorName(appt.doctor?.name)}
                             className="h-10 w-10 rounded-xl object-cover border border-slate-100"
                           />
                           <div>
-                            <h4 className="text-sm font-bold text-slate-800">Dr. {appt.doctor?.name}</h4>
+                            <h4 className="text-sm font-bold text-slate-800">{formatDoctorName(appt.doctor?.name)}</h4>
                             <p className="text-xs text-slate-500">
                               {appt.doctor?.specialization} · {getRelativeDayName(appt.appointmentDate)} · {appt.appointmentTime}
                             </p>
@@ -396,7 +416,7 @@ function PatientDashboard() {
                     {previousAppointments.slice(0, 5).map((appt) => (
                       <div key={appt._id} className="py-4 first:pt-0 last:pb-0 flex items-center justify-between gap-4">
                         <div>
-                          <h4 className="text-sm font-bold text-slate-800">Dr. {appt.doctor?.name}</h4>
+                          <h4 className="text-sm font-bold text-slate-800">{formatDoctorName(appt.doctor?.name)}</h4>
                           <p className="text-xs text-slate-500">
                             {appt.doctor?.specialization} · {new Date(appt.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
                           </p>
@@ -482,11 +502,11 @@ function PatientDashboard() {
                   <div className="flex items-center gap-3">
                     <img
                       src={favoriteDoctor.profilePicture || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200"}
-                      alt={favoriteDoctor.name}
+                      alt={formatDoctorName(favoriteDoctor.name)}
                       className="h-12 w-12 rounded-xl object-cover border border-slate-100"
                     />
                     <div>
-                      <h4 className="text-sm font-bold text-slate-900">{favoriteDoctor.name}</h4>
+                      <h4 className="text-sm font-bold text-slate-900">{formatDoctorName(favoriteDoctor.name)}</h4>
                       <p className="text-xs text-blue-600 font-semibold">{favoriteDoctor.specialization}</p>
                       <p className="text-2xs text-slate-400 mt-0.5">{favoriteDoctor.qualification}</p>
                     </div>
@@ -510,11 +530,11 @@ function PatientDashboard() {
                         <div className="flex items-center gap-2.5">
                           <img
                             src={doc.profilePicture || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=100"}
-                            alt={doc.name}
+                            alt={formatDoctorName(doc.name)}
                             className="h-9 w-9 rounded-lg object-cover border border-slate-100"
                           />
                           <div>
-                            <h4 className="text-xs font-bold text-slate-800">{doc.name}</h4>
+                            <h4 className="text-xs font-bold text-slate-800">{formatDoctorName(doc.name)}</h4>
                             <p className="text-3xs font-bold text-slate-400 uppercase tracking-wider">{doc.specialization}</p>
                           </div>
                         </div>

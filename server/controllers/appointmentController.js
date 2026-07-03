@@ -3,6 +3,7 @@ import User from "../models/User.js";
 import PredictionLog from "../models/PredictionLog.js";
 import isSameUser from "../utils/isSameUser.js";
 import getPopulatedAppointments from "../utils/getPopulatedAppointments.js";
+import formatDoctorName from "../utils/formatDoctorName.js";
 import buildQueuePayload from "../utils/buildQueuePayload.js";
 
 // Emits queueUpdated with the full current queue snapshot to everyone in the doctor's room.
@@ -81,6 +82,13 @@ const createAppointment = async (req, res) => {
       }
     }
 
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`user_${doctor}`).emit("notification", {
+        message: `New appointment scheduled by ${req.user.name} for ${appointmentTime}.`,
+      });
+    }
+
     res.status(201).json({ appointment });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -134,6 +142,19 @@ const cancelAppointment = async (req, res) => {
 
     await emitQueueUpdated(req.app.get("io"), appointment.doctor);
 
+    const io = req.app.get("io");
+    if (io) {
+      if (req.user.role === "patient") {
+        io.to(`user_${appointment.doctor}`).emit("notification", {
+          message: `Appointment for ${req.user.name} was cancelled.`,
+        });
+      } else {
+        io.to(`user_${appointment.patient}`).emit("notification", {
+          message: `Your appointment with ${formatDoctorName(req.user.name)} was cancelled.`,
+        });
+      }
+    }
+
     res.json({ appointment });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -169,6 +190,13 @@ const completeAppointment = async (req, res) => {
     await appointment.save();
 
     await emitQueueUpdated(req.app.get("io"), appointment.doctor);
+
+    const io = req.app.get("io");
+    if (io) {
+      io.to(`user_${appointment.patient}`).emit("notification", {
+        message: `Your consultation with ${formatDoctorName(req.user.name)} has been completed.`,
+      });
+    }
 
     res.json({ appointment });
   } catch (error) {
@@ -228,4 +256,35 @@ const checkInAppointment = async (req, res) => {
   }
 };
 
-export { createAppointment, getAppointments, cancelAppointment, completeAppointment, checkInAppointment };
+const getBookedSlots = async (req, res) => {
+  try {
+    const { doctor, date } = req.query;
+    if (!doctor || !date) {
+      return res.status(400).json({ message: "Doctor and date are required" });
+    }
+    const targetDate = new Date(date);
+    targetDate.setHours(0, 0, 0, 0);
+    const nextDate = new Date(targetDate);
+    nextDate.setDate(nextDate.getDate() + 1);
+
+    const appointments = await Appointment.find({
+      doctor,
+      appointmentDate: { $gte: targetDate, $lt: nextDate },
+      status: { $ne: "cancelled" }
+    }).select("appointmentTime");
+
+    const bookedSlots = appointments.map((a) => a.appointmentTime);
+    res.json({ bookedSlots });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export {
+  createAppointment,
+  getAppointments,
+  cancelAppointment,
+  completeAppointment,
+  checkInAppointment,
+  getBookedSlots,
+};

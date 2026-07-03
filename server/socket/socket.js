@@ -12,6 +12,10 @@ const initSocket = (httpServer) => {
       socket.join(`doctor_${doctorId}`);
     });
 
+    socket.on("joinUserRoom", (userId) => {
+      socket.join(`user_${userId}`);
+    });
+
     // Socket.io automatically removes the socket from all rooms on disconnect.
     // No manual cleanup is needed.
     socket.on("disconnect", () => {});

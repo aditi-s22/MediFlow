@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams, useLocation } from "react-router-dom";
 import toast from "react-hot-toast";
-import { Clock, Star, Award, Building, MapPin, FileText, CalendarCheck } from "lucide-react";
+import { Clock, Star, Award, Building, MapPin, FileText, CalendarCheck, Globe } from "lucide-react";
 import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
 import { SkeletonBar } from "../components/Skeleton";
 import * as doctorService from "../services/doctorService";
 import * as appointmentService from "../services/appointmentService";
 import { inputClassName } from "../utils/inputStyles";
+import formatDoctorName from "../utils/formatDoctorName";
 
 function BookAppointment() {
   const { id } = useParams();
@@ -22,6 +23,8 @@ function BookAppointment() {
   const [appointmentTime, setAppointmentTime] = useState("");
   const [reason, setReason] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [bookedSlots, setBookedSlots] = useState([]);
+  const [isUnavailable, setIsUnavailable] = useState(false);
 
   useEffect(() => {
     const fetchDoctor = async () => {
@@ -37,8 +40,33 @@ function BookAppointment() {
     fetchDoctor();
   }, [id]);
 
+  useEffect(() => {
+    if (!appointmentDate || !doctor) return;
+
+    // Validate if the selected date matches the doctor's working days
+    const dateObj = new Date(appointmentDate);
+    const dayOfWeek = dateObj.toLocaleDateString("en-US", { weekday: "long" });
+    const isDoctorWorking = doctor.availableDays?.length === 0 || doctor.availableDays?.includes(dayOfWeek);
+    setIsUnavailable(!isDoctorWorking);
+    setAppointmentTime(""); // reset chosen slot
+
+    const fetchBooked = async () => {
+      try {
+        const res = await appointmentService.getBookedSlots(doctor._id, appointmentDate);
+        setBookedSlots(res.data.bookedSlots || []);
+      } catch {
+        setBookedSlots([]);
+      }
+    };
+    fetchBooked();
+  }, [appointmentDate, doctor]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (isUnavailable) {
+      toast.error("Doctor is unavailable on this day.");
+      return;
+    }
     if (!appointmentDate || !appointmentTime) {
       toast.error("Please select a date and time slot.");
       return;
@@ -110,11 +138,11 @@ function BookAppointment() {
               <div className="flex gap-4">
                 <img
                   src={doctor.profilePicture || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400"}
-                  alt={doctor.name}
+                  alt={formatDoctorName(doctor.name)}
                   className="h-20 w-20 rounded-xl object-cover border border-slate-100"
                 />
                 <div>
-                  <h2 className="text-lg font-bold text-slate-900">{doctor.name}</h2>
+                  <h2 className="text-lg font-bold text-slate-900">{formatDoctorName(doctor.name)}</h2>
                   <p className="text-xs font-semibold text-blue-600 mt-0.5">{doctor.specialization}</p>
                   <p className="text-2xs text-slate-400 mt-0.5">{doctor.qualification}</p>
                   
@@ -194,6 +222,11 @@ function BookAppointment() {
                     onChange={(e) => setAppointmentDate(e.target.value)}
                     className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-700"
                   />
+                  {isUnavailable && (
+                    <p className="mt-2 text-xs font-semibold text-rose-600">
+                      Doctor is unavailable on this day.
+                    </p>
+                  )}
                 </div>
 
                 {/* Slots picker */}
@@ -203,21 +236,28 @@ function BookAppointment() {
                   </label>
                   {doctor.availableSlots?.length > 0 ? (
                     <div className="flex flex-wrap gap-2 mt-3">
-                      {doctor.availableSlots.map((slot) => (
-                        <button
-                          type="button"
-                          key={slot}
-                          onClick={() => setAppointmentTime(slot)}
-                          className={`flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all ${
-                            appointmentTime === slot
-                              ? "border-blue-600 bg-blue-600 text-white shadow-sm shadow-blue-100"
-                              : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
-                          }`}
-                        >
-                          <Clock className="h-3.5 w-3.5" />
-                          {slot}
-                        </button>
-                      ))}
+                      {doctor.availableSlots.map((slot) => {
+                        const isBooked = bookedSlots.includes(slot);
+                        const isDisabled = isBooked || isUnavailable;
+                        return (
+                          <button
+                            type="button"
+                            key={slot}
+                            disabled={isDisabled}
+                            onClick={() => setAppointmentTime(slot)}
+                            className={`flex items-center gap-1.5 rounded-xl border px-4 py-2.5 text-xs font-bold transition-all ${
+                              appointmentTime === slot
+                                ? "border-blue-600 bg-blue-600 text-white shadow-sm shadow-blue-100"
+                                : isDisabled
+                                ? "border-slate-100 bg-slate-100/50 text-slate-350 cursor-not-allowed"
+                                : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                            }`}
+                          >
+                            <Clock className="h-3.5 w-3.5" />
+                            {isBooked ? "Booked" : slot}
+                          </button>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="text-xs text-slate-400 italic">

@@ -70,8 +70,7 @@ const getRecommendation = async (req, res) => {
       matchedSymptoms.push("general symptoms");
     }
 
-    // 2. Fetch doctors matching the predicted department
-    const doctors = await User.find({ role: "doctor", specialization: department });
+    const doctors = await User.find({ role: "doctor", specialization: department, status: { $ne: "inactive" } });
     if (doctors.length === 0) {
       // Create a log anyway
       const log = await PredictionLog.create({

@@ -28,7 +28,8 @@ const buildQueuePayload = async (doctorId) => {
     : -1;
 
   const queueData = queue.map((appt, index) => {
-    const peopleAhead = servingIndex >= 0 ? index - servingIndex : index;
+    const rawPeopleAhead = servingIndex >= 0 ? index - servingIndex : index;
+    const peopleAhead = Math.max(0, rawPeopleAhead);
     return {
       _id: appt._id,
       queueNumber: appt.queueNumber,

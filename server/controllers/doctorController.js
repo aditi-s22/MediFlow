@@ -8,7 +8,7 @@ const getDoctors = async (req, res) => {
   try {
     const { specialization, search } = req.query;
 
-    const filter = { role: "doctor" };
+    const filter = { role: "doctor", status: { $ne: "inactive" } };
 
     if (specialization) {
       filter.specialization = { $regex: specialization, $options: "i" };
@@ -152,9 +152,10 @@ const deleteDoctor = async (req, res) => {
       return res.status(404).json({ message: "Doctor not found" });
     }
 
-    await doctor.deleteOne();
+    doctor.status = "inactive";
+    await doctor.save();
 
-    res.json({ message: "Doctor deleted successfully" });
+    res.json({ message: "Doctor account soft-deleted (marked inactive) successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

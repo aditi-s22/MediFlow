@@ -26,6 +26,7 @@ import EmptyState from "../components/EmptyState";
 import * as appointmentService from "../services/appointmentService";
 import * as queueService from "../services/queueService";
 import socket from "../services/socket";
+import formatDoctorName from "../utils/formatDoctorName";
 
 const isToday = (dateString) => {
   const d = new Date(dateString);
@@ -122,22 +123,30 @@ function DoctorDashboard() {
   
   const todayCompletedCount = todayAppointments.filter((a) => a.status === "completed").length;
   const todayCheckedInQueue = queue.length;
+
+  const upcomingConsultations = appointments.filter(
+    (a) => a.status === "confirmed" && !isToday(a.appointmentDate) && new Date(a.appointmentDate) > new Date()
+  );
+
+  const recentConsultActivity = appointments.filter(
+    (a) => a.status === "completed" || a.status === "cancelled"
+  );
   
   // Patients waiting are those in queue but NOT currently being served
-  const patientsWaitingCount = queue.filter(q => q._id.toString() !== currentServing).length;
+  const patientsWaitingCount = queue.filter(q => q._id?.toString() !== currentServing).length;
 
   const currentServingEntry = currentServing
-    ? queue.find((q) => q._id.toString() === currentServing.toString())
+    ? queue.find((q) => q._id?.toString() === currentServing.toString())
     : null;
 
   // Detailed info of current serving patient from appointments
   const currentPatientAppointment = currentServingEntry
-    ? appointments.find(a => a._id.toString() === currentServingEntry._id.toString())
+    ? appointments.find(a => a._id?.toString() === currentServingEntry._id?.toString())
     : null;
 
   // Upcoming consultations are today's confirmed appointments that are not checked in, OR checked in but waiting
   const todayUpcomingList = todayAppointments.filter(
-    a => a.status === "confirmed" && a._id.toString() !== currentServing
+    a => a.status === "confirmed" && a._id?.toString() !== currentServing
   );
 
   return (
@@ -150,7 +159,7 @@ function DoctorDashboard() {
             <span className="rounded bg-teal-50 border border-teal-100 px-3 py-1 text-2xs font-bold text-teal-700">
               CLINICAL DASHBOARD
             </span>
-            <h1 className="text-2xl font-black text-slate-900 mt-1">Welcome, Dr. {user?.name}</h1>
+            <h1 className="text-2xl font-black text-slate-900 mt-1">Welcome, {formatDoctorName(user?.name)}</h1>
             <p className="text-xs text-slate-500 mt-0.5">
               Specialization: <span className="font-semibold text-slate-700">{user?.specialization}</span> · {user?.hospitalName}
             </p>
@@ -379,22 +388,48 @@ function DoctorDashboard() {
                 )}
               </div>
 
-              {/* All Registered Consultations Log */}
+              {/* Upcoming Consultations */}
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Recent Bookings History</h3>
-                <div className="space-y-4 max-h-[300px] overflow-y-auto pr-1">
-                  {appointments.slice(0, 8).map((appt) => (
-                    <div key={appt._id} className="flex items-center justify-between text-xs border-b border-slate-50 pb-2.5 last:border-0 last:pb-0">
-                      <div>
-                        <p className="font-bold text-slate-800">{appt.patient?.name}</p>
-                        <p className="text-3xs text-slate-400">
-                          {new Date(appt.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {appt.appointmentTime}
-                        </p>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Upcoming Consultations</h3>
+                {upcomingConsultations.length === 0 ? (
+                  <p className="text-xs text-slate-400">No upcoming consultations.</p>
+                ) : (
+                  <div className="space-y-4 pr-1">
+                    {upcomingConsultations.slice(0, 4).map((appt) => (
+                      <div key={appt._id} className="flex items-center justify-between text-xs border-b border-slate-50 pb-2.5 last:border-0 last:pb-0">
+                        <div>
+                          <p className="font-bold text-slate-800">{appt.patient?.name}</p>
+                          <p className="text-3xs text-slate-400">
+                            {new Date(appt.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {appt.appointmentTime}
+                          </p>
+                        </div>
+                        <AppointmentStatusBadge appointment={appt} />
                       </div>
-                      <AppointmentStatusBadge status={appt.status} />
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* Recent Activity */}
+              <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Recent Activity</h3>
+                {recentConsultActivity.length === 0 ? (
+                  <p className="text-xs text-slate-400">No completed/cancelled consultations.</p>
+                ) : (
+                  <div className="space-y-4 pr-1">
+                    {recentConsultActivity.slice(0, 4).map((appt) => (
+                      <div key={appt._id} className="flex items-center justify-between text-xs border-b border-slate-50 pb-2.5 last:border-0 last:pb-0">
+                        <div>
+                          <p className="font-bold text-slate-800">{appt.patient?.name}</p>
+                          <p className="text-3xs text-slate-400">
+                            {new Date(appt.appointmentDate).toLocaleDateString("en-IN", { day: "numeric", month: "short" })} · {appt.appointmentTime}
+                          </p>
+                        </div>
+                        <AppointmentStatusBadge appointment={appt} />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
             </div>

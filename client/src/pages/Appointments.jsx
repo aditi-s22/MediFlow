@@ -8,6 +8,7 @@ import EmptyState from "../components/EmptyState";
 import { SkeletonRow } from "../components/Skeleton";
 import * as appointmentService from "../services/appointmentService";
 import * as adminService from "../services/adminService";
+import formatDoctorName from "../utils/formatDoctorName";
 
 function Appointments() {
   const { user } = useAuth();
@@ -52,12 +53,18 @@ function Appointments() {
 
   const visibleAppointments = appointments.filter((appt) => {
     if (statusFilter && appt.status !== statusFilter) return false;
-    if (isAdmin && search) {
+    if (search) {
       const term = search.toLowerCase();
-      if (
-        !appt.patient?.name?.toLowerCase().includes(term) &&
-        !appt.doctor?.name?.toLowerCase().includes(term)
-      ) return false;
+      if (user?.role === "patient") {
+        return appt.doctor?.name?.toLowerCase().includes(term);
+      } else if (user?.role === "doctor") {
+        return appt.patient?.name?.toLowerCase().includes(term);
+      } else if (isAdmin) {
+        return (
+          appt.patient?.name?.toLowerCase().includes(term) ||
+          appt.doctor?.name?.toLowerCase().includes(term)
+        );
+      }
     }
     return true;
   });
@@ -72,29 +79,33 @@ function Appointments() {
           {isAdmin ? "System-wide view of every appointment." : "Your full appointment history."}
         </p>
 
-        {isAdmin && (
-          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-            <input
-              type="search"
-              placeholder="Search by patient or doctor name…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              aria-label="Search appointments"
-              className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-            />
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              aria-label="Filter by status"
-              className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
-            >
-              <option value="">All statuses</option>
-              <option value="confirmed">Confirmed</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </select>
-          </div>
-        )}
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+          <input
+            type="search"
+            placeholder={
+              user?.role === "patient"
+                ? "Search by doctor name..."
+                : user?.role === "doctor"
+                ? "Search by patient name..."
+                : "Search by patient or doctor name..."
+            }
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search appointments"
+            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          />
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            aria-label="Filter by status"
+            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+          >
+            <option value="">All statuses</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
 
         {isLoading ? (
           <div className="mt-6 space-y-3">
@@ -130,7 +141,7 @@ function Appointments() {
                       <p className="text-sm font-medium text-gray-900">
                         {appt.patient?.name}
                         <span className="mx-2 text-gray-200">→</span>
-                        <span className="text-gray-600">Dr. {appt.doctor?.name}</span>
+                        <span className="text-gray-600">{formatDoctorName(appt.doctor?.name)}</span>
                       </p>
                       <p className="mt-0.5 text-xs text-gray-400">{appt.doctor?.specialization}</p>
                     </>
@@ -138,7 +149,7 @@ function Appointments() {
                     <p className="text-sm font-medium text-gray-900">{appt.patient?.name}</p>
                   ) : (
                     <>
-                      <p className="text-sm font-medium text-gray-900">Dr. {appt.doctor?.name}</p>
+                      <p className="text-sm font-medium text-gray-900">{formatDoctorName(appt.doctor?.name)}</p>
                       <p className="mt-0.5 text-xs text-gray-400">{appt.doctor?.specialization}</p>
                     </>
                   )}
@@ -155,7 +166,7 @@ function Appointments() {
                   )}
                 </div>
                 <div className="flex shrink-0 items-center gap-3">
-                  <AppointmentStatusBadge status={appt.status} />
+                  <AppointmentStatusBadge appointment={appt} />
                   {!isAdmin && appt.status === "confirmed" && (
                     <button
                       type="button"

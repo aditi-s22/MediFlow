@@ -6,10 +6,18 @@ import EmptyState from "../components/EmptyState";
 import { SkeletonBar } from "../components/Skeleton";
 import * as doctorService from "../services/doctorService";
 import { inputClassName } from "../utils/inputStyles";
+import formatDoctorName from "../utils/formatDoctorName";
+
+const ALL_SLOTS = [
+  "09:00 AM", "09:30 AM", "10:00 AM", "10:30 AM",
+  "11:00 AM", "11:30 AM", "12:00 PM", "12:30 PM",
+  "02:00 PM", "02:30 PM", "03:00 PM", "03:30 PM",
+  "04:00 PM", "04:30 PM", "05:00 PM"
+];
 
 const emptyForm = {
   name: "", email: "", password: "", phone: "",
-  specialization: "", experience: "", consultationFee: "", availableSlots: "",
+  specialization: "", experience: "", consultationFee: "", availableSlots: [],
 };
 
 function AdminDoctors() {
@@ -50,7 +58,7 @@ function AdminDoctors() {
       specialization: doctor.specialization || "",
       experience: doctor.experience ?? "",
       consultationFee: doctor.consultationFee ?? "",
-      availableSlots: (doctor.availableSlots || []).join(", "),
+      availableSlots: doctor.availableSlots || [],
     });
     setFormError("");
     setShowForm(true);
@@ -70,7 +78,7 @@ function AdminDoctors() {
       specialization: formData.specialization,
       experience: Number(formData.experience),
       consultationFee: Number(formData.consultationFee),
-      availableSlots: formData.availableSlots.split(",").map((s) => s.trim()).filter(Boolean),
+      availableSlots: formData.availableSlots,
     };
 
     try {
@@ -179,10 +187,34 @@ function AdminDoctors() {
                   <label className="block text-sm font-medium text-gray-700">Consultation fee (₹)</label>
                   <input name="consultationFee" type="number" min="0" value={formData.consultationFee} onChange={handleChange} className={inputClassName} placeholder="500" />
                 </div>
-                <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-gray-700">Available slots (comma-separated)</label>
-                  <input name="availableSlots" value={formData.availableSlots} onChange={handleChange} className={inputClassName} placeholder="10:00 AM, 11:00 AM, 2:00 PM" />
-                </div>
+                 <div className="sm:col-span-2">
+                   <span className="block text-sm font-medium text-gray-700 mb-2">Available Consultation Slots</span>
+                   <div className="flex flex-wrap gap-2 mt-1">
+                     {ALL_SLOTS.map((slot) => {
+                       const isSelected = formData.availableSlots?.includes(slot);
+                       return (
+                         <button
+                           type="button"
+                           key={slot}
+                           onClick={() => {
+                             const currentSlots = formData.availableSlots || [];
+                             const newSlots = isSelected
+                               ? currentSlots.filter((s) => s !== slot)
+                               : [...currentSlots, slot];
+                             setFormData({ ...formData, availableSlots: newSlots });
+                           }}
+                           className={`rounded-xl border px-3.5 py-2 text-xs font-bold transition-all ${
+                             isSelected
+                               ? "border-blue-600 bg-blue-600 text-white shadow-sm shadow-blue-100"
+                               : "border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50"
+                           }`}
+                         >
+                           {slot}
+                         </button>
+                       );
+                     })}
+                   </div>
+                 </div>
               </div>
               <div className="mt-5 flex gap-3">
                 <button
@@ -233,7 +265,7 @@ function AdminDoctors() {
                         {doctor.name?.[0]}
                       </div>
                       <div className="min-w-0">
-                        <p className="truncate font-medium text-gray-900">{doctor.name}</p>
+                        <p className="truncate font-medium text-gray-900">{formatDoctorName(doctor.name)}</p>
                         <p className="truncate text-xs text-gray-400">{doctor.email}</p>
                       </div>
                     </div>
@@ -287,7 +319,7 @@ function AdminDoctors() {
                               {doctor.name?.[0]}
                             </div>
                             <div>
-                              <p className="font-medium text-gray-900">{doctor.name}</p>
+                              <p className="font-medium text-gray-900">{formatDoctorName(doctor.name)}</p>
                               <p className="text-xs text-gray-400">{doctor.email}</p>
                             </div>
                           </div>
