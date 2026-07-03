@@ -3,26 +3,19 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   Calendar,
-  CalendarCheck,
   CheckCircle,
-  CalendarX,
   Users,
   ChevronRight,
   Clock,
   User,
   Activity,
-  FileText,
   CheckSquare,
-  Award,
-  Zap,
-  TrendingUp,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
 import DashboardCard from "../components/DashboardCard";
 import AppointmentStatusBadge from "../components/AppointmentStatusBadge";
-import { SkeletonCard, SkeletonRow } from "../components/Skeleton";
-import EmptyState from "../components/EmptyState";
+import { SkeletonCard } from "../components/Skeleton";
 import * as appointmentService from "../services/appointmentService";
 import * as queueService from "../services/queueService";
 import socket from "../services/socket";
@@ -156,19 +149,19 @@ function DoctorDashboard() {
         {/* Header */}
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-6">
           <div>
-            <span className="rounded bg-teal-50 border border-teal-100 px-3 py-1 text-2xs font-bold text-teal-700">
-              CLINICAL DASHBOARD
-            </span>
-            <h1 className="text-2xl font-black text-slate-900 mt-1">Welcome, {formatDoctorName(user?.name)}</h1>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Specialization: <span className="font-semibold text-slate-700">{user?.specialization}</span> · {user?.hospitalName}
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Welcome, {formatDoctorName(user?.name)}</h1>
+            <p className="text-sm text-teal-700 mt-0.5">
+              {user?.specialization} · {user?.hospitalName}
             </p>
           </div>
           <div className="text-left sm:text-right">
-            <p className="text-sm font-bold text-slate-900">
+            <p className="text-sm font-semibold text-slate-900">
               {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })}
             </p>
-            <p className="text-xs text-slate-500">Live queue sync active</p>
+            <p className="text-xs text-slate-500 flex items-center gap-1.5 sm:justify-end">
+              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              Live queue sync active
+            </p>
           </div>
         </div>
 
@@ -179,22 +172,10 @@ function DoctorDashboard() {
           </div>
         ) : (
           <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-4">
-            <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-2xs text-left">
-              <p className="text-3xs font-bold uppercase tracking-wider text-slate-400">Today's Schedule</p>
-              <p className="text-2xl font-black text-slate-900 mt-1">{todayAppointments.length} Bookings</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-2xs text-left">
-              <p className="text-3xs font-bold uppercase tracking-wider text-slate-400">Completed Today</p>
-              <p className="text-2xl font-black text-emerald-600 mt-1">{todayCompletedCount} Patients</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-2xs text-left">
-              <p className="text-3xs font-bold uppercase tracking-wider text-slate-400">Checked In Queue</p>
-              <p className="text-2xl font-black text-blue-600 mt-1">{todayCheckedInQueue} Active</p>
-            </div>
-            <div className="rounded-xl border border-slate-100 bg-white p-5 shadow-2xs text-left">
-              <p className="text-3xs font-bold uppercase tracking-wider text-slate-400">Patients Waiting</p>
-              <p className="text-2xl font-black text-orange-600 mt-1">{patientsWaitingCount} in lobby</p>
-            </div>
+            <DashboardCard label="Today's schedule" value={`${todayAppointments.length} bookings`} icon={Calendar} />
+            <DashboardCard label="Completed today" value={`${todayCompletedCount} patients`} icon={CheckSquare} accent="green" />
+            <DashboardCard label="Checked-in queue" value={`${todayCheckedInQueue} active`} icon={Users} accent="blue" />
+            <DashboardCard label="Patients waiting" value={`${patientsWaitingCount} in lobby`} icon={Clock} accent="amber" />
           </div>
         )}
 
@@ -205,10 +186,10 @@ function DoctorDashboard() {
             <div className="lg:col-span-8 space-y-8">
               
               {/* Current Serving Banner */}
-              <div className="rounded-2xl border border-blue-100 bg-blue-50/20 p-6 shadow-2xs">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-blue-700 flex items-center gap-1.5">
+              <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/50 to-white p-6 shadow-sm">
+                <h2 className="text-sm font-semibold text-blue-700 flex items-center gap-1.5">
                   <Activity className="h-4 w-4 text-blue-600 animate-pulse" />
-                  Currently Consulting Patient
+                  Current patient
                 </h2>
                 
                 {currentPatientAppointment ? (
@@ -259,20 +240,20 @@ function DoctorDashboard() {
               </div>
 
               {/* Lobby Queue Tracker */}
-              <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <div className="flex items-center justify-between border-b border-slate-50 pb-4 mb-4">
+              <div className="rounded-2xl border border-blue-100 bg-blue-50/20 p-6 shadow-sm">
+                <div className="flex items-center justify-between border-b border-blue-100/60 pb-4 mb-4">
                   <div>
-                    <h2 className="text-base font-bold text-slate-900">Lobby Waiting Queue</h2>
-                    <p className="text-xs text-slate-400 mt-0.5">{queue.length} checked-in patients</p>
+                    <h2 className="text-lg font-semibold text-slate-900">Lobby queue</h2>
+                    <p className="text-xs text-slate-500 mt-0.5">{queue.length} checked-in patients</p>
                   </div>
                   <button
                     type="button"
                     onClick={handleCallNext}
                     disabled={callingNext || queue.length === 0}
-                    className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
+                    className="flex items-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm hover:-translate-y-0.5"
                   >
                     <ChevronRight className="h-4.5 w-4.5" />
-                    {callingNext ? "Calling…" : "Call Next"}
+                    {callingNext ? "Calling…" : "Call next"}
                   </button>
                 </div>
 
@@ -329,7 +310,7 @@ function DoctorDashboard() {
               
               {/* Doctor Quick Actions */}
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Quick Actions</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-4">Quick actions</h3>
                 <div className="space-y-2">
                   <button
                     onClick={handleCallNext}
@@ -351,7 +332,7 @@ function DoctorDashboard() {
 
               {/* Today's Schedule Timeline */}
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Today's Schedule Timeline</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-4">Today's schedule</h3>
                 
                 {todayAppointments.length === 0 ? (
                   <p className="text-xs text-slate-400">No appointments scheduled for today.</p>
@@ -390,7 +371,7 @@ function DoctorDashboard() {
 
               {/* Upcoming Consultations */}
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Upcoming Consultations</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-4">Upcoming consultations</h3>
                 {upcomingConsultations.length === 0 ? (
                   <p className="text-xs text-slate-400">No upcoming consultations.</p>
                 ) : (
@@ -412,7 +393,7 @@ function DoctorDashboard() {
 
               {/* Recent Activity */}
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4">Recent Activity</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-4">Recent activity</h3>
                 {recentConsultActivity.length === 0 ? (
                   <p className="text-xs text-slate-400">No completed/cancelled consultations.</p>
                 ) : (

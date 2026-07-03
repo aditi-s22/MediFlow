@@ -1,0 +1,19 @@
+# Virtual environments
+venv/
+.venv/
+env/
+
+# Python bytecode / caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+
+# Local logs from running the FastAPI service
+*.log
+
+# Packaging
+*.egg-info/
+.eggs/

@@ -6,7 +6,6 @@ import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
 import { SkeletonBar } from "../components/Skeleton";
 import * as doctorService from "../services/doctorService";
 import * as appointmentService from "../services/appointmentService";
-import { inputClassName } from "../utils/inputStyles";
 import formatDoctorName from "../utils/formatDoctorName";
 
 function BookAppointment() {
@@ -120,12 +119,14 @@ function BookAppointment() {
       <div className="mx-auto max-w-7xl px-6 py-8">
         
         {/* Page Header */}
-        <div className="border-b border-slate-100 pb-6 mb-8 text-left">
-          <span className="rounded bg-blue-50 border border-blue-100 px-3 py-1 text-2xs font-bold text-blue-700">
-            APPOINTMENT BOOKING
-          </span>
-          <h1 className="text-2xl font-black text-slate-900 mt-1">Schedule Your Consultation</h1>
-          <p className="text-xs text-slate-500 mt-0.5">Please review the specialist's profile and choose an available consultation window.</p>
+        <div className="border-b border-slate-100 pb-6 mb-8 text-left flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+            <CalendarCheck className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Schedule your consultation</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Review the specialist's profile and choose an available consultation window.</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 text-left">
@@ -192,7 +193,7 @@ function BookAppointment() {
               {/* Fee */}
               <div className="border-t border-slate-100 pt-4 flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Consultation Fee</span>
-                <span className="text-lg font-black text-slate-800">₹{doctor.consultationFee}</span>
+                <span className="text-lg font-bold text-slate-800">₹{doctor.consultationFee}</span>
               </div>
 
             </div>
@@ -283,6 +284,31 @@ function BookAppointment() {
                   <p className="mt-1 text-right text-3xs text-slate-400 font-mono">{reason.length}/200</p>
                 </div>
 
+                {/* Booking summary */}
+                {appointmentDate && appointmentTime && (
+                  <div className="rounded-xl border border-blue-100 bg-blue-50/40 p-4 space-y-2">
+                    <p className="text-xs font-semibold text-blue-700">Booking summary</p>
+                    <div className="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-slate-600">
+                      <span className="text-slate-400">Doctor</span>
+                      <span className="font-medium text-slate-800 text-right">{formatDoctorName(doctor.name)}</span>
+                      <span className="text-slate-400">Date</span>
+                      <span className="font-medium text-slate-800 text-right">
+                        {new Date(appointmentDate).toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
+                      </span>
+                      <span className="text-slate-400">Time</span>
+                      <span className="font-medium text-slate-800 text-right">{appointmentTime}</span>
+                      {reason && (
+                        <>
+                          <span className="text-slate-400">Reason</span>
+                          <span className="font-medium text-slate-800 text-right truncate">{reason}</span>
+                        </>
+                      )}
+                      <span className="text-slate-400">Consultation fee</span>
+                      <span className="font-semibold text-slate-900 text-right">₹{doctor.consultationFee}</span>
+                    </div>
+                  </div>
+                )}
+
                 {/* Submit button */}
                 <button
                   type="submit"
@@ -290,7 +316,7 @@ function BookAppointment() {
                   className="w-full rounded-xl bg-blue-600 py-3.5 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none shadow-lg shadow-blue-100 hover:shadow-blue-200 transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
                 >
                   <CalendarCheck className="h-4.5 w-4.5" />
-                  {isSubmitting ? "Booking Appointment…" : "Confirm Medical Appointment"}
+                  {isSubmitting ? "Booking appointment…" : "Confirm appointment"}
                 </button>
 
               </div>

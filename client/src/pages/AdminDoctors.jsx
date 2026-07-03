@@ -119,28 +119,33 @@ function AdminDoctors() {
       <div className="mx-auto max-w-5xl px-6 py-8">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-xl font-semibold text-gray-900">Manage Doctors</h1>
-            <p className="mt-0.5 text-sm text-gray-500">
-              {isLoading ? "" : `${doctors.length} doctor${doctors.length !== 1 ? "s" : ""} registered`}
-            </p>
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+              <Stethoscope className="h-5 w-5" />
+            </div>
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Manage doctors</h1>
+              <p className="mt-0.5 text-sm text-slate-500">
+                {isLoading ? "" : `${doctors.length} doctor${doctors.length !== 1 ? "s" : ""} registered`}
+              </p>
+            </div>
           </div>
           <button
             type="button"
             onClick={openCreateForm}
-            className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-700 shadow-sm hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
             <Plus className="h-4 w-4" />
-            Add Doctor
+            Add doctor
           </button>
         </div>
 
         {/* Slide-in form */}
         {showForm && (
-          <div className="mt-6 rounded-xl bg-white p-6 ring-1 ring-gray-200 shadow-sm">
+          <div className="mt-6 rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
             <div className="flex items-center justify-between">
-              <h2 className="text-sm font-semibold text-gray-800">
-                {editingDoctor ? "Edit Doctor" : "New Doctor"}
+              <h2 className="text-lg font-semibold text-slate-900">
+                {editingDoctor ? "Edit doctor" : "New doctor"}
               </h2>
               <button type="button" onClick={closeForm} className="rounded-lg p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600">
                 <X className="h-4 w-4" />
@@ -259,7 +264,7 @@ function AdminDoctors() {
               {/* Mobile cards */}
               <div className="space-y-3 sm:hidden">
                 {doctors.map((doctor) => (
-                  <div key={doctor._id} className="rounded-xl bg-white p-5 ring-1 ring-gray-100">
+                  <div key={doctor._id} className="rounded-xl bg-white p-5 border border-slate-100 hover:shadow-md transition-shadow">
                     <div className="flex items-center gap-3">
                       <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blue-50 text-sm font-bold text-blue-600">
                         {doctor.name?.[0]}
@@ -299,7 +304,7 @@ function AdminDoctors() {
               </div>
 
               {/* Desktop table */}
-              <div className="hidden overflow-hidden rounded-xl bg-white ring-1 ring-gray-100 sm:block">
+              <div className="hidden overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-sm sm:block">
                 <table className="min-w-full divide-y divide-gray-100 text-sm">
                   <thead className="bg-gray-50">
                     <tr>

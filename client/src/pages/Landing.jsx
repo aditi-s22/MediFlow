@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
 import {
   CalendarCheck,
-  Clock,
   Users,
   BarChart3,
   ShieldCheck,
@@ -11,11 +10,7 @@ import {
   Activity,
   Heart,
   Stethoscope,
-  MapPin,
   Star,
-  ArrowRight,
-  Globe,
-  Award,
   Layers,
 } from "lucide-react";
 import { useState } from "react";
@@ -101,18 +96,18 @@ function Landing() {
             
             {/* Left Content */}
             <div className="lg:col-span-5 text-left">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-100 px-3.5 py-1.5 text-xs font-semibold text-blue-700">
-                <Activity className="h-3.5 w-3.5 animate-pulse text-blue-600" />
-                Next-Gen Hospital Management System
+              <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wide text-blue-600">
+                <Activity className="h-3.5 w-3.5 animate-pulse" />
+                Hospital management system
               </span>
-              <h1 className="mt-6 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl leading-[1.1]">
-                Modern Hospital <br />
+              <h1 className="mt-3 text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl leading-[1.1]">
+                One platform to run <br />
                 <span className="bg-gradient-to-r from-blue-600 to-teal-500 bg-clip-text text-transparent">
-                  Management Platform
+                  your entire hospital
                 </span>
               </h1>
               <p className="mt-6 text-lg leading-relaxed text-slate-500">
-                Manage appointments, patients, doctors, hospital operations, and live consultation queues from one unified platform.
+                Discover specialists, book appointments, manage consultations, and track live queues — with dedicated workspaces for patients, doctors, and administrators.
               </p>
               
               <div className="mt-8 flex flex-wrap gap-4">
@@ -284,7 +279,7 @@ function Landing() {
               { label: "Low Cancellations", value: "99%", desc: "Consultation Success" },
             ].map((stat, i) => (
               <div key={i} className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm">
-                <p className="text-2xl font-black text-blue-600 lg:text-3xl">{stat.value}</p>
+                <p className="text-2xl font-bold text-blue-600 lg:text-3xl">{stat.value}</p>
                 <p className="mt-1 text-sm font-bold text-slate-900">{stat.label}</p>
                 <p className="mt-0.5 text-xs text-slate-400">{stat.desc}</p>
               </div>
@@ -294,9 +289,9 @@ function Landing() {
       </section>
 
       {/* ── How It Works Section ── */}
-      <section id="how-it-works" className="py-20 bg-white border-y border-slate-100">
+      <section id="how-it-works" className="py-16 bg-white border-y border-slate-100">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <span className="text-xs font-bold uppercase tracking-wider text-teal-600 bg-teal-50 border border-teal-100 px-3 py-1 rounded-full">
+          <span className="text-xs font-semibold uppercase tracking-wide text-teal-600">
             Patient Journey
           </span>
           <h2 className="mt-4 text-3xl font-bold text-slate-900 sm:text-4xl">
@@ -328,9 +323,9 @@ function Landing() {
       </section>
 
       {/* ── Core Modules Section ── */}
-      <section className="py-20 bg-slate-50">
+      <section className="py-16 bg-slate-50">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+          <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">
             Product Architecture
           </span>
           <h2 className="mt-4 text-3xl font-bold text-slate-900 sm:text-4xl">
@@ -381,9 +376,9 @@ function Landing() {
       </section>
 
       {/* ── Doctor Specialties Section ── */}
-      <section id="specialties" className="py-20 bg-white border-b border-slate-100">
+      <section id="specialties" className="py-16 bg-white border-b border-slate-100">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+          <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">
             Clinical Scope
           </span>
           <h2 className="mt-4 text-3xl font-bold text-slate-900 sm:text-4xl">
@@ -419,9 +414,9 @@ function Landing() {
       </section>
 
       {/* ── Featured Doctors Section ── */}
-      <section id="featured-doctors" className="py-20 bg-slate-50">
+      <section id="featured-doctors" className="py-16 bg-slate-50">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <span className="text-xs font-bold uppercase tracking-wider text-teal-600 bg-teal-50 border border-teal-100 px-3 py-1 rounded-full">
+          <span className="text-xs font-semibold uppercase tracking-wide text-teal-600">
             Top Clinicians
           </span>
           <h2 className="mt-4 text-3xl font-bold text-slate-900 sm:text-4xl">
@@ -510,9 +505,9 @@ function Landing() {
 
       {/* ── Platform Features Section ── */}
       <span id="platform-features" />
-      <section className="py-20 bg-white border-y border-slate-100">
+      <section className="py-16 bg-white border-y border-slate-100">
         <div className="mx-auto max-w-7xl px-6 text-center">
-          <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+          <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">
             Clinical Standards
           </span>
           <h2 className="mt-4 text-3xl font-bold text-slate-900 sm:text-4xl">
@@ -571,7 +566,7 @@ function Landing() {
               { name: "Socket.io", type: "Real-time Sync" }
             ].map((tech, i) => (
               <div key={i} className="text-center rounded-xl bg-white border border-slate-100 px-5 py-3 shadow-2xs min-w-[140px]">
-                <p className="text-sm font-black text-slate-900">{tech.name}</p>
+                <p className="text-sm font-bold text-slate-900">{tech.name}</p>
                 <p className="text-[10px] text-slate-400 mt-0.5">{tech.type}</p>
               </div>
             ))}
@@ -580,10 +575,10 @@ function Landing() {
       </section>
 
       {/* ── FAQ Section ── */}
-      <section id="faq" className="py-20 bg-white">
+      <section id="faq" className="py-16 bg-white">
         <div className="mx-auto max-w-3xl px-6">
           <div className="mb-12 text-center">
-            <span className="text-xs font-bold uppercase tracking-wider text-blue-600 bg-blue-50 border border-blue-100 px-3 py-1 rounded-full">
+            <span className="text-xs font-semibold uppercase tracking-wide text-blue-600">
               Common Queries
             </span>
             <h2 className="mt-4 text-3xl font-bold text-slate-900">Frequently Asked Questions</h2>

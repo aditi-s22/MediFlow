@@ -72,14 +72,21 @@ function Appointments() {
   return (
     <AuthenticatedLayout>
       <div className="mx-auto max-w-4xl px-6 py-8">
-        <h1 className="text-xl font-semibold text-gray-900">
-          {isAdmin ? "All Appointments" : "My Appointments"}
-        </h1>
-        <p className="mt-0.5 text-sm text-gray-500">
-          {isAdmin ? "System-wide view of every appointment." : "Your full appointment history."}
-        </p>
+        <div className="flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+            <Calendar className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
+              {isAdmin ? "All appointments" : "My appointments"}
+            </h1>
+            <p className="mt-0.5 text-sm text-slate-500">
+              {isAdmin ? "System-wide view of every appointment." : "Your full appointment history."}
+            </p>
+          </div>
+        </div>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <div className="mt-6 flex flex-col gap-3 sm:flex-row bg-white p-4 rounded-2xl border border-slate-100 shadow-2xs">
           <input
             type="search"
             placeholder={
@@ -92,13 +99,13 @@ function Appointments() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             aria-label="Search appointments"
-            className="flex-1 rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm placeholder:text-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+            className="flex-1 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all text-slate-700"
           />
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
             aria-label="Filter by status"
-            className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm shadow-sm focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/30"
+            className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-700 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-500/20 transition-all"
           >
             <option value="">All statuses</option>
             <option value="confirmed">Confirmed</option>
@@ -131,36 +138,36 @@ function Appointments() {
             {visibleAppointments.map((appt) => (
               <div
                 key={appt._id}
-                className={`flex items-start justify-between gap-4 rounded-xl bg-white px-5 py-4 ring-1 ring-gray-100 transition-opacity ${
-                  appt.status === "cancelled" ? "opacity-40" : ""
+                className={`flex items-start justify-between gap-4 rounded-xl bg-white px-5 py-4 border border-slate-100 hover:bg-slate-50 transition-colors ${
+                  appt.status === "cancelled" ? "opacity-50" : ""
                 }`}
               >
                 <div className="min-w-0">
                   {isAdmin ? (
                     <>
-                      <p className="text-sm font-medium text-gray-900">
+                      <p className="text-sm font-semibold text-slate-900">
                         {appt.patient?.name}
-                        <span className="mx-2 text-gray-200">→</span>
-                        <span className="text-gray-600">{formatDoctorName(appt.doctor?.name)}</span>
+                        <span className="mx-2 text-slate-300">→</span>
+                        <span className="text-slate-600">{formatDoctorName(appt.doctor?.name)}</span>
                       </p>
-                      <p className="mt-0.5 text-xs text-gray-400">{appt.doctor?.specialization}</p>
+                      <p className="mt-0.5 text-xs text-slate-400">{appt.doctor?.specialization}</p>
                     </>
                   ) : user?.role === "doctor" ? (
-                    <p className="text-sm font-medium text-gray-900">{appt.patient?.name}</p>
+                    <p className="text-sm font-semibold text-slate-900">{appt.patient?.name}</p>
                   ) : (
                     <>
-                      <p className="text-sm font-medium text-gray-900">{formatDoctorName(appt.doctor?.name)}</p>
-                      <p className="mt-0.5 text-xs text-gray-400">{appt.doctor?.specialization}</p>
+                      <p className="text-sm font-semibold text-slate-900">{formatDoctorName(appt.doctor?.name)}</p>
+                      <p className="mt-0.5 text-xs text-slate-400">{appt.doctor?.specialization}</p>
                     </>
                   )}
-                  <p className="mt-1 text-xs text-gray-400">
+                  <p className="mt-1 text-xs text-slate-400">
                     {new Date(appt.appointmentDate).toLocaleDateString("en-IN", {
                       weekday: "short", day: "numeric", month: "short", year: "numeric",
                     })}{" "}
                     · {appt.appointmentTime}
                   </p>
                   {appt.reason && (
-                    <p className="mt-0.5 truncate text-xs italic text-gray-400">
+                    <p className="mt-0.5 truncate text-xs italic text-slate-400">
                       &ldquo;{appt.reason}&rdquo;
                     </p>
                   )}
@@ -172,7 +179,7 @@ function Appointments() {
                       type="button"
                       onClick={() => handleCancel(appt._id)}
                       disabled={cancellingId === appt._id}
-                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 disabled:opacity-50"
+                      className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-600 hover:bg-red-50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-1 disabled:opacity-50 transition-colors"
                     >
                       {cancellingId === appt._id ? "Cancelling…" : "Cancel"}
                     </button>

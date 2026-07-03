@@ -13,8 +13,6 @@ import {
   FileText,
   Calendar,
   Heart,
-  CalendarCheck,
-  CheckCircle,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
@@ -112,12 +110,14 @@ function Profile() {
       <div className="mx-auto max-w-7xl px-6 py-8">
         
         {/* Header */}
-        <div className="border-b border-slate-100 pb-6 mb-8 text-left">
-          <span className="rounded bg-blue-50 border border-blue-100 px-3 py-1 text-2xs font-bold text-blue-700">
-            MY ACCOUNT
-          </span>
-          <h1 className="text-2xl font-black text-slate-900 mt-1">Manage Profile Settings</h1>
-          <p className="text-xs text-slate-500 mt-0.5">Review personal credentials, hospital affiliations, and contact information.</p>
+        <div className="border-b border-slate-100 pb-6 mb-8 text-left flex items-center gap-3">
+          <div className="h-10 w-10 rounded-xl bg-blue-50 border border-blue-100 text-blue-600 flex items-center justify-center shrink-0">
+            <User className="h-5 w-5" />
+          </div>
+          <div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">My account</h1>
+            <p className="text-sm text-slate-500 mt-0.5">Your credentials, hospital affiliation, and contact information.</p>
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 text-left">
@@ -132,13 +132,13 @@ function Profile() {
                   <img
                     src={user?.profilePicture || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=400"}
                     alt={user?.name}
-                    className="h-24 w-24 rounded-2xl object-cover border border-slate-200 shadow-sm"
+                    className="h-28 w-28 rounded-2xl object-cover border border-slate-200 shadow-sm"
                   />
                   <div className="space-y-1">
-                    <span className="rounded bg-blue-50 px-2.5 py-0.5 text-3xs font-bold text-blue-700 uppercase tracking-wider">
+                    <span className="rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700">
                       {roleLabel[user?.role]}
                     </span>
-                    <h2 className="text-xl font-black text-slate-900">{user?.name}</h2>
+                    <h2 className="text-xl font-bold text-slate-900">{user?.name}</h2>
                     <p className="text-sm font-semibold text-blue-600">{user?.specialization}</p>
                     <p className="text-xs text-slate-500">{user?.qualification}</p>
                   </div>
@@ -147,7 +147,7 @@ function Profile() {
                 {/* About snippet & Biography */}
                 {user?.biography && (
                   <div className="space-y-2">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Professional Biography</h3>
+                    <h3 className="text-sm font-semibold text-slate-900">About</h3>
                     <p className="text-xs text-slate-600 leading-relaxed font-normal bg-slate-50 p-4 rounded-xl border border-slate-150/40">
                       {user.biography}
                     </p>
@@ -155,21 +155,24 @@ function Profile() {
                 )}
 
                 {/* Grid details */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 border-t border-slate-50 pt-5">
-                  <Field label="Clinical Specialty" value={user?.specialization} icon={Stethoscope} />
-                  <Field label="Clinical Experience" value={user?.experience ? `${user.experience} Years` : null} icon={Award} />
-                  <Field label="Hospital Affiliation" value={user?.hospitalName} icon={Building} />
-                  <Field label="Registration Number" value={user?.medicalRegistrationNumber} icon={FileText} />
-                  <Field label="Languages" value={user?.languagesSpoken?.join(", ")} icon={Globe} />
-                  <Field label="Consultation Fee" value={user?.consultationFee ? `₹${user.consultationFee}` : null} icon={Heart} />
-                  <Field label="Clinic Address" value={user?.clinicAddress} icon={MapPin} />
-                  <Field label="Contact Phone" value={user?.phone} icon={Phone} />
-                  <Field label="Contact Email" value={user?.email} icon={Mail} />
-                  <Field label="Available Days" value={user?.availableDays?.join(", ")} icon={Calendar} />
+                <div>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-4">Education &amp; experience</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 border-t border-slate-50 pt-5">
+                    <Field label="Specialty" value={user?.specialization} icon={Stethoscope} />
+                    <Field label="Experience" value={user?.experience ? `${user.experience} years` : null} icon={Award} />
+                    <Field label="Hospital" value={user?.hospitalName} icon={Building} />
+                    <Field label="Registration number" value={user?.medicalRegistrationNumber} icon={FileText} />
+                    <Field label="Languages" value={user?.languagesSpoken?.join(", ")} icon={Globe} />
+                    <Field label="Consultation fee" value={user?.consultationFee ? `₹${user.consultationFee}` : null} icon={Heart} />
+                    <Field label="Clinic address" value={user?.clinicAddress} icon={MapPin} />
+                    <Field label="Phone" value={user?.phone} icon={Phone} />
+                    <Field label="Email" value={user?.email} icon={Mail} />
+                    <Field label="Available days" value={user?.availableDays?.join(", ")} icon={Calendar} />
+                  </div>
                 </div>
 
                 <div className="border-t border-slate-50 pt-5">
-                  <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3">Today's Availability Windows</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-3">Availability</h3>
                   <div className="flex flex-wrap gap-2">
                     {user?.availableSlots?.length > 0 ? (
                       user.availableSlots.map((slot) => (
@@ -192,12 +195,12 @@ function Profile() {
               <div className="space-y-6">
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-5">
                   <div className="flex items-center gap-4 pb-4 border-b border-slate-50">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-blue-600 text-white font-bold text-xl shadow-md shadow-blue-100">
+                    <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-blue-600 text-white font-bold text-2xl shadow-md shadow-blue-100">
                       {user?.name?.[0]?.toUpperCase()}
                     </div>
                     <div>
-                      <span className="rounded bg-teal-50 px-2 py-0.5 text-3xs font-bold text-teal-700 uppercase tracking-wider">
-                        Patient Profile
+                      <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-medium text-teal-700">
+                        Patient
                       </span>
                       <h2 className="text-lg font-bold text-slate-900 mt-1">{user?.name}</h2>
                       <p className="text-xs text-slate-500">{user?.email}</p>
@@ -205,16 +208,16 @@ function Profile() {
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    <Field label="Email Address" value={user?.email} icon={Mail} />
-                    <Field label="Primary Phone" value={user?.phone} icon={Phone} />
-                    <Field label="Gender Identity" value={user?.gender || <span className="text-amber-600 font-bold italic text-xs">Complete Profile</span>} icon={User} />
-                    <Field label="Patient Age" value={user?.age ? `${user.age} Years` : <span className="text-amber-600 font-bold italic text-xs">Complete Profile</span>} icon={Calendar} />
+                    <Field label="Email" value={user?.email} icon={Mail} />
+                    <Field label="Phone" value={user?.phone} icon={Phone} />
+                    <Field label="Gender" value={user?.gender || <span className="text-amber-600 font-semibold italic text-xs">Complete profile</span>} icon={User} />
+                    <Field label="Age" value={user?.age ? `${user.age} years` : <span className="text-amber-600 font-semibold italic text-xs">Complete profile</span>} icon={Calendar} />
                   </div>
                 </div>
 
                 {/* Patient Upcoming Bookings */}
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-sm font-bold text-slate-900 border-b border-slate-50 pb-4 mb-4">Upcoming Consultations</h3>
+                  <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-50 pb-4 mb-4">Upcoming consultations</h3>
                   {appointments.filter(a => a.status === "confirmed").length === 0 ? (
                     <p className="text-xs text-slate-400 italic py-2">No upcoming consultations on file.</p>
                   ) : (
@@ -237,7 +240,7 @@ function Profile() {
 
                 {/* Patient Historical Bookings */}
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-sm font-bold text-slate-900 border-b border-slate-50 pb-4 mb-4">Consultation History</h3>
+                  <h3 className="text-lg font-semibold text-slate-900 border-b border-slate-50 pb-4 mb-4">Consultation history</h3>
                   {appointments.filter(a => a.status === "completed" || a.status === "cancelled").length === 0 ? (
                     <p className="text-xs text-slate-400 italic py-2">No historical consultations recorded.</p>
                   ) : (
@@ -265,11 +268,11 @@ function Profile() {
             {user?.role === "admin" && (
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm space-y-5">
                 <div className="flex items-center gap-4 pb-4 border-b border-slate-50">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-rose-600 text-white font-bold text-xl shadow-md shadow-rose-100">
+                  <div className="flex h-20 w-20 items-center justify-center rounded-2xl bg-rose-600 text-white font-bold text-2xl shadow-md shadow-rose-100">
                     A
                   </div>
                   <div>
-                    <span className="rounded bg-rose-50 px-2 py-0.5 text-3xs font-bold text-rose-700 uppercase tracking-wider">
+                    <span className="rounded-full bg-rose-50 px-2.5 py-0.5 text-xs font-medium text-rose-700">
                       Administrator
                     </span>
                     <h2 className="text-lg font-bold text-slate-900 mt-1">{user?.name}</h2>
@@ -277,10 +280,10 @@ function Profile() {
                   </div>
                 </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                  <Field label="System Role" value={roleLabel[user?.role]} icon={User} />
-                  <Field label="Access Level" value="Full Operational Privileges" icon={Award} />
-                  <Field label="Operations Phone" value={user?.phone} icon={Phone} />
-                  <Field label="Administrative Email" value={user?.email} icon={Mail} />
+                  <Field label="System role" value={roleLabel[user?.role]} icon={User} />
+                  <Field label="Access level" value="Full operational privileges" icon={Award} />
+                  <Field label="Phone" value={user?.phone} icon={Phone} />
+                  <Field label="Email" value={user?.email} icon={Mail} />
                 </div>
               </div>
             )}
@@ -290,7 +293,7 @@ function Profile() {
           {/* Right Wing: Editable Form (5 cols) */}
           <div className="lg:col-span-5">
             <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-              <h2 className="mb-5 text-sm font-bold uppercase tracking-wider text-slate-400">Edit Settings</h2>
+              <h2 className="mb-5 text-lg font-semibold text-slate-900">Edit settings</h2>
               <form onSubmit={handleSubmit} className="space-y-4">
                 
                 {/* Contact phone */}

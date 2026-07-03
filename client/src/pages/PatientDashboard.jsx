@@ -3,27 +3,17 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 import {
   CalendarCheck,
-  CalendarX,
   Calendar,
-  CheckCircle,
   Clock,
-  Users,
   Stethoscope,
   Heart,
   User,
-  ArrowRight,
   Plus,
-  FileText,
   Shield,
-  Activity,
-  Award,
-  ChevronRight,
-  TrendingUp,
 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import AuthenticatedLayout from "../layouts/AuthenticatedLayout";
 import { SkeletonCard } from "../components/Skeleton";
-import EmptyState from "../components/EmptyState";
 import * as appointmentService from "../services/appointmentService";
 import * as queueService from "../services/queueService";
 import * as doctorService from "../services/doctorService";
@@ -237,20 +227,20 @@ function PatientDashboard() {
         {/* Welcome Section */}
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between border-b border-slate-100 pb-6">
           <div>
-            <h1 className="text-2xl font-black text-slate-900">
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
               Good {getGreeting()}, {user?.name?.split(" ")[0]}
             </h1>
             <p className="mt-1 text-sm text-slate-500">
-              Welcome back to your MediFlow Patient Portal. Track your appointments and care.
+              {new Date().toLocaleDateString("en-IN", { weekday: "long", day: "numeric", month: "long" })} · Here's an overview of your care
             </p>
           </div>
           <div className="flex gap-3">
             <Link
               to="/doctors"
-              className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 shadow-md shadow-blue-100 hover:shadow-blue-200 transition-all flex items-center gap-1.5"
+              className="rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white hover:bg-blue-700 shadow-md shadow-blue-100 hover:shadow-blue-200 transition-all flex items-center gap-1.5 hover:-translate-y-0.5"
             >
               <Plus className="h-4 w-4" />
-              Book Appointment
+              Book appointment
             </Link>
           </div>
         </div>
@@ -284,17 +274,15 @@ function PatientDashboard() {
               
               {/* Today's Appointment / Live Queue Tracking */}
               {todayAppointment ? (
-                <div className="rounded-2xl border border-blue-100 bg-white p-6 shadow-sm">
+                <div className="rounded-2xl border border-blue-100 bg-gradient-to-br from-blue-50/40 to-white p-6 shadow-sm">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="h-12 w-12 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600">
+                      <div className="h-12 w-12 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm shrink-0">
                         <Clock className="h-6 w-6" />
                       </div>
                       <div>
-                        <span className="rounded bg-blue-50 px-2 py-0.5 text-2xs font-bold text-blue-700">
-                          TODAY'S APPOINTMENT
-                        </span>
-                        <h3 className="mt-1 text-base font-bold text-slate-900">
+                        <p className="text-xs font-medium text-blue-600">Today's appointment</p>
+                        <h3 className="mt-0.5 text-lg font-bold text-slate-900">
                           {formatDoctorName(todayAppointment.doctor?.name)}
                         </h3>
                         <p className="text-xs text-slate-500">
@@ -303,7 +291,7 @@ function PatientDashboard() {
                       </div>
                     </div>
                     {todayAppointment.queueNumber !== null && (
-                      <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-black text-white shadow-sm shadow-blue-100">
+                      <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-semibold text-white shadow-sm shadow-blue-100">
                         Queue #{todayAppointment.queueNumber}
                       </span>
                     )}
@@ -330,23 +318,23 @@ function PatientDashboard() {
                       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                         <div className="rounded-xl bg-blue-600 p-4 text-center text-white shadow-md shadow-blue-100">
                           <p className="text-2xs font-semibold uppercase tracking-wider text-blue-100">Your Number</p>
-                          <p className="mt-1 text-2xl font-black">#{todayAppointment.queueNumber}</p>
+                          <p className="mt-1 text-2xl font-bold">#{todayAppointment.queueNumber}</p>
                         </div>
                         <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 text-center">
                           <p className="text-2xs font-semibold uppercase tracking-wider text-slate-400">Now Serving</p>
-                          <p className="mt-1 text-2xl font-black text-slate-800">
+                          <p className="mt-1 text-2xl font-bold text-slate-800">
                             {servingEntry ? `#${servingEntry.queueNumber}` : "—"}
                           </p>
                         </div>
                         <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 text-center">
                           <p className="text-2xs font-semibold uppercase tracking-wider text-slate-400">People Ahead</p>
-                          <p className="mt-1 text-2xl font-black text-slate-800">
+                          <p className="mt-1 text-2xl font-bold text-slate-800">
                             {myQueueEntry ? myQueueEntry.peopleAhead : "—"}
                           </p>
                         </div>
                         <div className="rounded-xl bg-slate-50 border border-slate-100 p-4 text-center">
                           <p className="text-2xs font-semibold uppercase tracking-wider text-slate-400">Est. Wait</p>
-                          <p className="mt-1 text-2xl font-black text-slate-800">
+                          <p className="mt-1 text-2xl font-bold text-slate-800">
                             {myQueueEntry ? `${myQueueEntry.estimatedWait} min` : "—"}
                           </p>
                         </div>
@@ -363,9 +351,9 @@ function PatientDashboard() {
               {/* Upcoming Appointments List */}
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
                 <div className="flex items-center justify-between border-b border-slate-50 pb-4 mb-4">
-                  <h2 className="text-base font-bold text-slate-900">Upcoming Appointments</h2>
-                  <span className="rounded bg-teal-50 px-2 py-0.5 text-2xs font-bold text-teal-700 border border-teal-100">
-                    {upcomingAppointments.length} Scheduled
+                  <h2 className="text-lg font-semibold text-slate-900">Upcoming appointments</h2>
+                  <span className="rounded-full bg-teal-50 px-2.5 py-0.5 text-xs font-semibold text-teal-700 border border-teal-100">
+                    {upcomingAppointments.length} scheduled
                   </span>
                 </div>
 
@@ -403,8 +391,8 @@ function PatientDashboard() {
 
               {/* Previous Consultations History */}
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h2 className="text-base font-bold text-slate-900 border-b border-slate-50 pb-4 mb-4">
-                  Consultation History
+                <h2 className="text-lg font-semibold text-slate-900 border-b border-slate-50 pb-4 mb-4">
+                  Consultation history
                 </h2>
                 
                 {previousAppointments.length === 0 ? (
@@ -446,7 +434,7 @@ function PatientDashboard() {
               
               {/* Quick Actions Panel */}
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Quick Actions</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-4">Quick actions</h3>
                 <div className="grid grid-cols-2 gap-3">
                   <Link
                     to="/doctors"
@@ -483,9 +471,9 @@ function PatientDashboard() {
               <div id="health-tips" className="rounded-2xl border border-rose-100 bg-rose-50/30 p-6 shadow-2xs">
                 <div className="flex items-center gap-2 text-rose-700">
                   <Heart className="h-5 w-5 fill-rose-600 text-rose-600" />
-                  <h3 className="text-sm font-bold uppercase tracking-wider">Health Advisory Card</h3>
+                  <h3 className="text-sm font-semibold">Health reminder</h3>
                 </div>
-                <p className="text-sm font-bold text-slate-800 mt-3">Preventive Cardiac Health Tip</p>
+                <p className="text-sm font-bold text-slate-800 mt-3">Preventive cardiac health tip</p>
                 <p className="text-xs leading-relaxed text-slate-500 mt-1">
                   Drinking 3 liters of filtered water daily assists circulatory blood volume. Maintaining at least 7-8 hours of sleep regulates autonomic heart rates and prevents chronic cardiovascular fatigue.
                 </p>
@@ -498,7 +486,7 @@ function PatientDashboard() {
               {/* Favorite Doctor highlight */}
               {favoriteDoctor && (
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Your Favorite Clinician</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-4">Your favorite clinician</h3>
                   <div className="flex items-center gap-3">
                     <img
                       src={favoriteDoctor.profilePicture || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?q=80&w=200"}
@@ -523,7 +511,7 @@ function PatientDashboard() {
               {/* Recommended Specialists */}
               {recommendedSpecialists.length > 0 && (
                 <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Recommended Specialists</h3>
+                  <h3 className="text-sm font-semibold text-slate-900 mb-4">Recommended specialists</h3>
                   <div className="space-y-4">
                     {recommendedSpecialists.map((doc) => (
                       <div key={doc._id} className="flex items-center justify-between gap-3 border-b border-slate-50 pb-3 last:border-b-0 last:pb-0">
@@ -552,7 +540,7 @@ function PatientDashboard() {
 
               {/* Recent Activity Log */}
               <div className="rounded-2xl border border-slate-100 bg-white p-6 shadow-sm">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 mb-4">Recent Activity</h3>
+                <h3 className="text-sm font-semibold text-slate-900 mb-4">Recent activity</h3>
                 <div className="space-y-4">
                   {recentActivity.map((act, i) => (
                     <div key={i} className="flex gap-3 text-xs">
